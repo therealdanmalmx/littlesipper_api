@@ -1,4 +1,6 @@
+using ChildFriendlyCafes.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace littlesipper_api.Controllers;
 
@@ -6,78 +8,83 @@ namespace littlesipper_api.Controllers;
 [Route("[controller]")]
 public class CafeInformationController : ControllerBase
 {
-    private readonly ILogger<CafeInformationController> _logger;
-
-    public CafeInformationController(ILogger<CafeInformationController> logger)
+    private readonly AppDbContext _context;
+    public CafeInformationController(AppDbContext context)
     {
-        _logger = logger;
+        _context = context;
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<CafeInformation>> Get()
+    public async Task<ActionResult<IEnumerable<CafeInformation>>> Get()
     {
-        var cafes = new List<CafeInformation>
+        var getCafeList = await _context.Cafes.ToListAsync();
+        if (getCafeList == null)
         {
-            new CafeInformation
-            {
-                Id = Guid.NewGuid(),
-                Name = "Espresso House Knalleland",
-                StreetAddress = "Lundbygatan 1",
-                City = "Borås",
-                PostalCode = "503 32",
-                Latitude = "57.73296",
-                Longitude = "12.93726",
-            },
-            new CafeInformation
-            {
-                Id = Guid.NewGuid(),
-                Name = "Espresso House Borås Station",
-                StreetAddress = "Stationsgatan 16",
-                City = "Borås",
-                PostalCode = "503 38",
-                Latitude = "57.72057",
-                Longitude = "12.93258",
-            },
-
-            new CafeInformation
-            {
-                Id = Guid.NewGuid(),
-                Name = "Café Viskan",
-                StreetAddress = "Södra Strandgatan 6",
-                City = "Borås",
-                PostalCode = "503 35",
-                Latitude = "57.71984",
-                Longitude = "12.94025",
-            },
-        };
-
-        return Ok(cafes);
+            return NotFound($"Café with ID was not found.");
+        }
+        return await _context.Cafes.ToListAsync();
     }
 
 
     [HttpGet("{id}")]
-    public ActionResult<CafeInformation> Get(string id, CafeInformation cafe)
+    public async Task<ActionResult<CafeInformation>> Get(Guid id)
     {
-        var singleCafe = cafe.Where(cafe => cafe.Id == id);
-
-        return Ok(singleCafe);
+        var cafe = await _context.Cafes.FindAsync(id);
+        if (cafe == null)
+        {
+            return NotFound();
+        }
+        return cafe;
     }
 
-    // [HttpPost]
-    // public ActionResult<CafeInformation> Post(CafeInformation cafe)
-    // {
-    //     cafe = new CafeInformation
-    //     {
-    //         Id = Guid.NewGuid(),
-    //         Name = "Espresso House",
-    //         StreetAddress = "Kungsgatan 1",
-    //         City = "Borås",
-    //         PostalCode = "503 32",
-    //         Latitude = "57.73296",
-    //         Longitude = "12.93726",
+    [HttpPost]
+    public async Task<ActionResult<CafeInformation>> Post(CafeInformation cafe)
+    {
+        _context.Cafes.Add(cafe);
+        await _context.SaveChangesAsync();
+        return CreatedAtAction(nameof(Get), new { id = cafe.Id }, cafe);
+    }
 
-    //     };
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Put(Guid id, CafeInformation cafe)
+    {
+        if (id != cafe.Id)
+        {
+            return BadRequest();
+        }
 
-    //     return Ok(cafe);
-    // }
+        _context.Entry(cafe).State = EntityState.Modified;
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!_context.Cafes.Any(e => e.Id == id))
+            {
+                return NotFound();
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        return NoContent();
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var cafe = await _context.Cafes.FindAsync(id);
+        if (cafe == null)
+        {
+            return NotFound();
+        }
+
+        _context.Cafes.Remove(cafe);
+        await _context.SaveChangesAsync();
+        return NoContent();
+    }
 }
