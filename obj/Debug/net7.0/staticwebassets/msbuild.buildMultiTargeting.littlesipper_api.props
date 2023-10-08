@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="../build/littlesipper_api.props" />
+</Project>
