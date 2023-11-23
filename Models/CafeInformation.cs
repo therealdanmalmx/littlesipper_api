@@ -13,6 +13,6 @@ public class CafeInformation
     public string Latitude { get; set; } = "";
     public string Longitude { get; set; } = "";
 
-    public Amenities Amenities { get; set; } = new Amenities(false, false, false, false, false);
+    public List<Amenities> Amenities { get; set; } = Array.Empty<Amenities>().ToList();
 
 }
