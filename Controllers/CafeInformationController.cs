@@ -1,4 +1,6 @@
 using ChildFriendlyCafes.Models;
+using littlesipper_api.Dtos.Cafes;
+using littlesipper_api.Services.CafeinformationService;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,102 +10,60 @@ namespace littlesipper_api.Controllers;
 [Route("[controller]")]
 public class CafeInformationController : ControllerBase
 {
+    private readonly ICafeInformationService _cafeInformationService;
 
-    private static List<CafeInformation> cafes = new List<CafeInformation>() {
-        new CafeInformation {
-            Id = Guid.NewGuid(),
-            Name = "Espresso House Borås",
-            StreetAddress = "Stora Brogatan 20",
-            City = "Borås",
-            PostalCode = "503 35",
-            Latitude = "57.720600",
-            Longitude = "12.939520",
-            Amenities = Amenities.Changeroom | Amenities.Toys | Amenities.Playground
-        },
-        new CafeInformation {
-            Id = Guid.NewGuid(),
-            Name = "Espresso House Borås Station",
-            StreetAddress = "Stationsgatan 16",
-            City = "Borås",
-            PostalCode = "503 38",
-            Latitude = "57.720612",
-            Longitude = "12.932280",
-            Amenities = Amenities.Changeroom | Amenities.Books
-        },
-        new CafeInformation {
-            Id = Guid.NewGuid(),
-            Name = "Espresso House Knalleland",
-            StreetAddress = "Lundbygatan 1",
-            City = "Borås",
-            PostalCode = "506 38",
-            Latitude = "57.733410",
-            Longitude = "12.937820",
-            Amenities = Amenities.Changeroom | Amenities.Toys | Amenities.Garden
-        },
-    };
-
-    private readonly AppDbContext _context;
-    public CafeInformationController(AppDbContext context)
+    public CafeInformationController(ICafeInformationService cafeInformationService)
     {
-        _context = context;
+        _cafeInformationService = cafeInformationService;
     }
 
     [HttpGet]
-    public ActionResult<List<CafeInformation>> Get()
+    public async Task<ActionResult<List<GetCafesDto>>> Get()
     {
-        return Ok(cafes);
+        return Ok(await _cafeInformationService.GetAllCafes());
     }
 
     [HttpGet("{id}")]
-    public ActionResult<CafeInformation> GetSingle(Guid id)
+    public async Task<ActionResult<GetCafesDto>> GetSingle(Guid id)
     {
-        var cafe = cafes.FirstOrDefault(cafe => cafe.Id == id);
-        return Ok(cafe);
+        return Ok(await _cafeInformationService.GetSingleCafe(id));
     }
 
     [HttpPost]
-    public ActionResult<List<CafeInformation>> AddCafe(CafeInformation cafe)
+    public async Task<ActionResult<List<GetCafesDto>>> AddCafe(AddCafeDto newCafe)
     {
-        cafes.Add(cafe);
-        return Ok(cafes);
+        return Ok(await _cafeInformationService.AddNewCafe(newCafe));
     }
 
-    [HttpPut("{id}")]
-    public ActionResult Put(Guid id)
-    {
+    // [HttpPut("{id}")]
+    // public ActionResult Put(Guid id)
+    // {
 
-        var cafe = cafes.FirstOrDefault(cafe => cafe.Id == id);
+    //     var cafe = _cafeInformationService.FirstOrDefault(cafe => cafe.Id == id);
 
-        if (cafe == null)
-        {
-            return NotFound($"No café with id {id} was found.");
-        }
+    //     if (_cafeInformationService == null)
+    //     {
+    //         return NotFound($"No café with id {id} was found.");
+    //     }
 
-        var updatedCafe  =
-            cafe.Name = cafe.Name;
-            cafe.StreetAddress = cafe.StreetAddress;
-            cafe.City = cafe.City;
-            cafe.PostalCode = cafe.PostalCode;
-            cafe.Latitude = cafe.Latitude;
-            cafe.Longitude = cafe.Longitude;
-            cafe.Amenities = cafe.Amenities;
+    //     var updatedCafe  =
+    //         cafe.Name = cafe.Name;
+    //         cafe.StreetAddress = cafe.StreetAddress;
+    //         cafe.City = cafe.City;
+    //         cafe.PostalCode = cafe.PostalCode;
+    //         cafe.Latitude = cafe.Latitude;
+    //         cafe.Longitude = cafe.Longitude;
+    //         cafe.Amenities = cafe.Amenities;
 
-        return Ok(cafe);
-    }
+    //     return Ok(cafe);
+    // }
 
-    [HttpDelete("{id}")]
-    public ActionResult Delete(Guid id)
-    {
-        var cafe = cafes.FirstOrDefault(cafe => cafe.Id == id);
+    // [HttpDelete("{id}")]
+    // public ActionResult Delete(Guid id)
+    // {
+    //     var cafe = _cafeInformationService.FirstOrDefault(cafe => cafe.Id == id);
 
-        if (cafe == null)
-        {
-            return NotFound($"No café with id {id} was found.");
-        }
+    //     return Ok(_cafeInformationService.Remove(cafe));
 
-            cafes.Remove(cafe);
-
-            return Ok();
-
-    }
+    // }
 }
