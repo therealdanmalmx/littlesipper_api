@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using littlesipper_api.Dtos.Cafes;
 using littlesipper_api.Services.CafeinformationService;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -42,18 +43,28 @@ namespace littlesipper_api.Services.CafeInformationService
             Amenities = Amenities.Changeroom | Amenities.Toys | Amenities.Garden
         },
     };
+        private readonly IMapper _mapper;
+
+        public CafeInformationService(IMapper mapper)
+    {
+            _mapper = mapper;
+        }
         public async Task<List<GetCafesDto>> GetAllCafes()
         {
-           return cafes;
+            return cafes.Select(cafe => _mapper.Map<GetCafesDto>(cafe)).ToList();
         }
         public async Task<GetCafesDto> GetSingleCafe(Guid id)
         {
-            return cafes.FirstOrDefault(cafe => cafe.Id == id);
+            var cafe = cafes.FirstOrDefault(cafe => cafe.Id == id);
+            return _mapper.Map<GetCafesDto>(cafe);
         }
         public async Task<List<GetCafesDto>> AddNewCafe(AddCafeDto newCafe)
         {
-            cafes.Add(newCafe);
-            return cafes;
+            CafeInformation cafe = _mapper.Map<CafeInformation>(newCafe);
+            cafe.Id = Guid.NewGuid();
+            cafes.Add(cafe);
+            var addCafe = cafes.Select(cafe => _mapper.Map<GetCafesDto>(cafe)).ToList();
+            return addCafe;
         }
 
 

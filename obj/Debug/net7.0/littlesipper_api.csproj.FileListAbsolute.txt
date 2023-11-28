@@ -102,3 +102,5 @@
 /Users/daniel/projects/littlesipper_api/obj/Debug/net7.0/littlesipper_api.pdb
 /Users/daniel/projects/littlesipper_api/obj/Debug/net7.0/littlesipper_api.genruntimeconfig.cache
 /Users/daniel/projects/littlesipper_api/obj/Debug/net7.0/ref/littlesipper_api.dll
+/Users/daniel/projects/littlesipper_api/bin/Debug/net7.0/AutoMapper.dll
+/Users/daniel/projects/littlesipper_api/bin/Debug/net7.0/AutoMapper.Extensions.Microsoft.DependencyInjection.dll
