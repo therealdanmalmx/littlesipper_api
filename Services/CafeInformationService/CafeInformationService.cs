@@ -67,6 +67,40 @@ namespace littlesipper_api.Services.CafeInformationService
             return addCafe;
         }
 
+        public async Task<GetCafesDto> UpdateCafe(UpdateCafeDto updateCafe)
+        {
 
+            CafeInformation cafe;
+
+            try
+            {
+                cafe = cafes.FirstOrDefault(cafe => cafe.Id == updateCafe.Id);
+
+                _mapper.Map(updateCafe, cafe);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+            return _mapper.Map<GetCafesDto>(cafe);
+        }
+
+        public async Task<List<GetCafesDto>> DeleteCafe(Guid id)
+        {
+            CafeInformation cafe = new CafeInformation();
+
+            try
+            {
+                cafe = cafes.First(cafe => cafe.Id == id);
+                cafes.Remove(cafe);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+            return cafes.Select(cafe => _mapper.Map<GetCafesDto>(cafe)).ToList();
+        }
     }
 }

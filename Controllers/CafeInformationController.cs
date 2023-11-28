@@ -35,35 +35,28 @@ public class CafeInformationController : ControllerBase
         return Ok(await _cafeInformationService.AddNewCafe(newCafe));
     }
 
-    // [HttpPut("{id}")]
-    // public ActionResult Put(Guid id)
-    // {
+    [HttpPatch]
+    public async Task<ActionResult<GetCafesDto>> UpdatedCafe(UpdateCafeDto updateCafe)
+    {
+        var cafeToUpdate = await _cafeInformationService.UpdateCafe(updateCafe);
 
-    //     var cafe = _cafeInformationService.FirstOrDefault(cafe => cafe.Id == id);
+        if (cafeToUpdate == null)
+        {
+            return NotFound("Cafe not found or update failed");
+        }
+        return Ok(cafeToUpdate);
+    }
 
-    //     if (_cafeInformationService == null)
-    //     {
-    //         return NotFound($"No café with id {id} was found.");
-    //     }
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<GetCafesDto>>Delete(Guid id)
+    {
+        var cafeToDelete = await _cafeInformationService.DeleteCafe(id);
+        if (cafeToDelete == null)
+        {
+            return NotFound("Cafe not found or delete failed");
+        }
+        return Ok(cafeToDelete);
 
-    //     var updatedCafe  =
-    //         cafe.Name = cafe.Name;
-    //         cafe.StreetAddress = cafe.StreetAddress;
-    //         cafe.City = cafe.City;
-    //         cafe.PostalCode = cafe.PostalCode;
-    //         cafe.Latitude = cafe.Latitude;
-    //         cafe.Longitude = cafe.Longitude;
-    //         cafe.Amenities = cafe.Amenities;
 
-    //     return Ok(cafe);
-    // }
-
-    // [HttpDelete("{id}")]
-    // public ActionResult Delete(Guid id)
-    // {
-    //     var cafe = _cafeInformationService.FirstOrDefault(cafe => cafe.Id == id);
-
-    //     return Ok(_cafeInformationService.Remove(cafe));
-
-    // }
+    }
 }

@@ -11,5 +11,7 @@ namespace littlesipper_api.Services.CafeinformationService
         Task<List<GetCafesDto>> GetAllCafes();
         Task<GetCafesDto> GetSingleCafe(Guid id);
         Task<List<GetCafesDto>> AddNewCafe(AddCafeDto newCafe);
+        Task<GetCafesDto> UpdateCafe(UpdateCafeDto updateCafe);
+        Task<List<GetCafesDto>> DeleteCafe(Guid id);
     }
 }

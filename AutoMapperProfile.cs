@@ -13,6 +13,7 @@ namespace littlesipper_api
         {
             CreateMap<CafeInformation, GetCafesDto>();
             CreateMap<AddCafeDto, CafeInformation>();
+            CreateMap<UpdateCafeDto, CafeInformation>();
         }
     }
 }
