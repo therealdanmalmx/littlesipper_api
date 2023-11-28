@@ -9,15 +9,37 @@ namespace littlesipper_api.Controllers;
 public class CafeInformationController : ControllerBase
 {
 
-    private static CafeInformation cafe = new CafeInformation() {
-        Id = Guid.NewGuid(),
-        Name = "Espresso House",
-        StreetAddress = "Boråsgatan, 12",
-        City = "Borås",
-        PostalCode = "505 34",
-        Latitude = "53,5654",
-        Longitude = "12,5435",
-        Amenities = Amenities.Changeroom | Amenities.Toys | Amenities.Books | Amenities.Playground | Amenities.Garden
+    private static List<CafeInformation> cafes = new List<CafeInformation>() {
+        new CafeInformation {
+            Id = Guid.NewGuid(),
+            Name = "Espresso House Borås",
+            StreetAddress = "Stora Brogatan 20",
+            City = "Borås",
+            PostalCode = "503 35",
+            Latitude = "57.720600",
+            Longitude = "12.939520",
+            Amenities = Amenities.Changeroom | Amenities.Toys | Amenities.Playground
+        },
+        new CafeInformation {
+            Id = Guid.NewGuid(),
+            Name = "Espresso House Borås Station",
+            StreetAddress = "Stationsgatan 16",
+            City = "Borås",
+            PostalCode = "503 38",
+            Latitude = "57.720612",
+            Longitude = "12.932280",
+            Amenities = Amenities.Changeroom | Amenities.Books
+        },
+        new CafeInformation {
+            Id = Guid.NewGuid(),
+            Name = "Espresso House Knalleland",
+            StreetAddress = "Lundbygatan 1",
+            City = "Borås",
+            PostalCode = "506 38",
+            Latitude = "57.733410",
+            Longitude = "12.937820",
+            Amenities = Amenities.Changeroom | Amenities.Toys | Amenities.Garden
+        },
     };
 
     private readonly AppDbContext _context;
@@ -27,14 +49,14 @@ public class CafeInformationController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<CafeInformation> Get()
+    public ActionResult<List<CafeInformation>> Get()
     {
         // var getCafeList = _context.Cafes.ToList();
         // if (getCafeList == null)
         // {
         //     return NotFound("No café were found.");
         // }
-        return Ok(cafe);
+        return Ok(cafes);
     }
 
     [HttpGet("{id}")]
