@@ -1,5 +1,8 @@
+using System.Text.Json.Serialization;
+
 namespace littlesipper_api.Models
 {
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     [Flags]
     public enum Amenities
     {
@@ -9,6 +12,5 @@ namespace littlesipper_api.Models
         Books = 4,
         Playground = 8,
         Garden = 16
-
     }
 }

@@ -1,7 +1,7 @@
+
+global using littlesipper_api.Models;
 using ChildFriendlyCafes.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
