@@ -1,6 +1,7 @@
 
 global using littlesipper_api.Models;
 using ChildFriendlyCafes.Models;
+using littlesipper_api.Data;
 using littlesipper_api.Services.CafeinformationService;
 using littlesipper_api.Services.CafeInformationService;
 using Microsoft.EntityFrameworkCore;
@@ -8,8 +9,7 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
-builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<DataContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
