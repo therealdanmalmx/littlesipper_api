@@ -3,84 +3,71 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using littlesipper_api.Data;
 using littlesipper_api.Dtos.Cafes;
 using littlesipper_api.Services.CafeinformationService;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 
 namespace littlesipper_api.Services.CafeInformationService
 {
     public class CafeInformationService : ICafeInformationService
     {
-            private static List<CafeInformation> cafes = new List<CafeInformation>() {
-        new CafeInformation {
-            Id = Guid.NewGuid(),
-            Name = "Espresso House Borås",
-            StreetAddress = "Stora Brogatan 20",
-            City = "Borås",
-            PostalCode = "503 35",
-            Latitude = "57.720600",
-            Longitude = "12.939520",
-            Amenities = Amenities.Changeroom | Amenities.Toys | Amenities.Playground
-        },
-        new CafeInformation {
-            Id = Guid.NewGuid(),
-            Name = "Espresso House Borås Station",
-            StreetAddress = "Stationsgatan 16",
-            City = "Borås",
-            PostalCode = "503 38",
-            Latitude = "57.720612",
-            Longitude = "12.932280",
-            Amenities = Amenities.Changeroom | Amenities.Books
-        },
-        new CafeInformation {
-            Id = Guid.NewGuid(),
-            Name = "Espresso House Knalleland",
-            StreetAddress = "Lundbygatan 1",
-            City = "Borås",
-            PostalCode = "506 38",
-            Latitude = "57.733410",
-            Longitude = "12.937820",
-            Amenities = Amenities.Changeroom | Amenities.Toys | Amenities.Garden
-        },
-    };
+        private static List<CafeInformation> cafes = new List<CafeInformation>() {
+        };
         private readonly IMapper _mapper;
+        private readonly DataContext _dataContext;
 
-        public CafeInformationService(IMapper mapper)
+        public CafeInformationService(IMapper mapper, DataContext dataContext)
     {
             _mapper = mapper;
+            _dataContext = dataContext;
         }
         public async Task<List<GetCafesDto>> GetAllCafes()
         {
-            return cafes.Select(cafe => _mapper.Map<GetCafesDto>(cafe)).ToList();
+            var dbCafes = await _dataContext.Cafes.ToListAsync();
+            return dbCafes.Select(cafe => _mapper.Map<GetCafesDto>(cafe)).ToList();
         }
         public async Task<GetCafesDto> GetSingleCafe(Guid id)
         {
-            var cafe = cafes.FirstOrDefault(cafe => cafe.Id == id);
-            return _mapper.Map<GetCafesDto>(cafe);
+            var dbCafes = await _dataContext.Cafes.FirstOrDefaultAsync(cafe => cafe.Id == id);
+            return _mapper.Map<GetCafesDto>(dbCafes);
         }
         public async Task<List<GetCafesDto>> AddNewCafe(AddCafeDto newCafe)
         {
             CafeInformation cafe = _mapper.Map<CafeInformation>(newCafe);
             cafe.Id = Guid.NewGuid();
-            cafes.Add(cafe);
-            var addCafe = cafes.Select(cafe => _mapper.Map<GetCafesDto>(cafe)).ToList();
+            _dataContext.Cafes.Add(cafe);
+            await _dataContext.SaveChangesAsync();
+            var addCafe = await _dataContext.Cafes.Select(cafe => _mapper.Map<GetCafesDto>(cafe)).ToListAsync();
             return addCafe;
         }
 
         public async Task<GetCafesDto> UpdateCafe(UpdateCafeDto updateCafe)
         {
-
-            CafeInformation cafe;
+            CafeInformation? cafe;
 
             try
             {
-                cafe = cafes.FirstOrDefault(cafe => cafe.Id == updateCafe.Id);
+                cafe = await _dataContext.Cafes.FirstOrDefaultAsync(cafe => cafe.Id == updateCafe.Id);
 
-                _mapper.Map(updateCafe, cafe);
+                if (cafe == null)
+                {
+                    throw new KeyNotFoundException("Cafe not found.");
+                }
+                else
+                {
+                    _mapper.Map(updateCafe, cafe);
+                    await _dataContext.SaveChangesAsync();
+                }
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new DbUpdateException("Failed to update product.", ex);
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new Exception("An error occurred while updating the product.", ex);
             }
 
             return _mapper.Map<GetCafesDto>(cafe);
@@ -88,19 +75,27 @@ namespace littlesipper_api.Services.CafeInformationService
 
         public async Task<List<GetCafesDto>> DeleteCafe(Guid id)
         {
-            CafeInformation cafe = new CafeInformation();
-
             try
             {
-                cafe = cafes.First(cafe => cafe.Id == id);
-                cafes.Remove(cafe);
+                CafeInformation cafe = await _dataContext.Cafes.FirstAsync(cafe => cafe.Id == id);
+
+                if (cafe == null)
+                {
+                    throw new KeyNotFoundException("Cafe not found.");
+                }
+
+                _dataContext.Cafes.Remove(cafe);
+                await _dataContext.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new DbUpdateException("Failed to delete product.", ex);
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new Exception("An error occurred while deleting the product.", ex);
             }
-
-            return cafes.Select(cafe => _mapper.Map<GetCafesDto>(cafe)).ToList();
+            return _dataContext.Cafes.Select(cafe => _mapper.Map<GetCafesDto>(cafe)).ToList();
         }
     }
 }
